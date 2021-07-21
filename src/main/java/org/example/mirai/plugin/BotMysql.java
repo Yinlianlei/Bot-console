@@ -205,6 +205,7 @@ public class BotMysql {
         "add [任务] <备注(可选)> --任务添加\n\t"+
         "comp [任务ID] --任务完成\n\t"+
         "remove [任务ID] --任务删除\n\t"+
+        "change [任务ID] [任务] <备注(可选)> --改变目标信息 \n\t"+
         "send @[QQ号] [任务] <备注(可选)> --发送任务给他人\n"
         );
     }
@@ -994,6 +995,7 @@ public class BotMysql {
                 "init <uid> --初始化指定uid的up主\n"+
                 "list --列除\n"+
                 "help --列出指令帮助\n"+
+                "anime <id/week> --列出新番\n"+
                 "remove --移除指令\n"));
             }else{
                 user.sendMessage("bilibili Up subscribe help:\n"+
@@ -1002,7 +1004,8 @@ public class BotMysql {
                 "init <uid> --初始化指定uid的up主\n"+
                 "list --列除\n"+
                 "help --列出指令帮助\n"+
-                "remove --移除指令\n");
+                "anime <id/week> --列出新番\n"+
+                "remove <id> --移除指令\n");
             }
         }catch(Exception e){
             e.printStackTrace();
