@@ -10,6 +10,31 @@ import net.mamoe.mirai.event.events.FriendMessageEvent;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
 import net.mamoe.mirai.event.Listener;
 import net.mamoe.mirai.contact.Group;
+import net.mamoe.mirai.contact.Friend;
+import net.mamoe.mirai.utils.BotConfiguration;
+import net.mamoe.mirai.event.GlobalEventChannel;
+import net.mamoe.mirai.event.EventChannel;
+import net.mamoe.mirai.event.events.BotEvent;
+import net.mamoe.mirai.event.events.NewFriendRequestEvent;
+import net.mamoe.mirai.event.SimpleListenerHost;
+import net.mamoe.mirai.event.events.FriendMessageEvent;
+import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
+import net.mamoe.mirai.event.events.StrangerMessageEvent;
+import net.mamoe.mirai.event.events.TempMessageEvent;
+import net.mamoe.mirai.event.events.BotOnlineEvent;
+import net.mamoe.mirai.event.Listener;
+
+import net.mamoe.mirai.message.data.PlainText;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.Message;
+
+import net.mamoe.mirai.contact.User;
+import net.mamoe.mirai.contact.Group;
+
+import com.alibaba.fastjson.JSONArray;
+
+import java.sql.*;
 
 
 /**
@@ -30,17 +55,29 @@ import net.mamoe.mirai.contact.Group;
 
 public final class JavaPluginMain extends JavaPlugin {
     public static final JavaPluginMain INSTANCE = new JavaPluginMain();
+    private BotMysql sql;
     private Listener listenerFriend;
     private Listener listenerGroup;
     private Listener listenerStranger;
+    private BotThread BT;//bot thread for daily subscribe
     private JavaPluginMain() {
         super(new JvmPluginDescriptionBuilder("org.yinlianlei.plugin.Bot", "0.1.0")
                 .build());
+        
+        try{
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        BT = new BotThread();
+        sql = new BotMysql();
+        BT.start();
     }
 
     @Override
     public void onEnable() {
         getLogger().info("日志");
+        //System.out.println(Bot.botInstances);
         EventChannel<Event> eventChannel = GlobalEventChannel.INSTANCE.parentScope(this);
         listenerGroup = GlobalEventChannel.INSTANCE.subscribeAlways(GroupMessageEvent.class, event -> {
             String msg = event.getMessage().serializeToMiraiCode();
@@ -51,33 +88,35 @@ public final class JavaPluginMain extends JavaPlugin {
             //System.out.println(event.getMessage().contentToString());
             Group group = event.getSubject();
             if(msg.charAt(0) == '/'){
-                if(msg.contains("task")){
-                    //sql.Bot_switch(msg,event);
-                }else if(msg.contains("sub")){
-                    //sql.Bot_switch(msg,event);
-                }else if(msg.contains("菜单")){
-                    group.sendMessage(
-                    "命令格式: \n"+
-                    "/交易 @玩家 物品 数量 [和某位玩家进行交易]\n"+
-                    "/技能 @玩家 技能名称 [给某位玩家加Buff]\n"+
-                    "/攻击 @玩家 [攻击某位玩家]\n"+
-                    "/论道 @玩家 [和某位玩家论道]"
-                    );
-                }else if(msg.contains("/交易")){
-                    group.sendMessage("未开放");
-                }else if(msg.contains("/技能")){
-                    group.sendMessage("未开放");
-                }else if(msg.contains("/攻击")){
-                    group.sendMessage("未开放");
-                }else if(msg.contains("/论道")){
-                    group.sendMessage("未开放");
+                String[] in = msg.split(" ");
+                if(in[0].contains("task")){
+                    sql.Bot_switch(in,event);
+                }else if(in[0].contains("bili")){
+                    sql.Bot_switch(in,event);
+                }else if(in[0].contains("git")){
+                    sql.Bot_switch(in,event);
+                }else if(in[0].compareTo("/stop") == 0){
+                    BT.Stop();
                 }
                 
             }
         });
-        eventChannel.subscribeAlways(FriendMessageEvent.class, f -> {
-            //监听好友消息
-            getLogger().info(f.getMessage().contentToString());
+        listenerFriend = GlobalEventChannel.INSTANCE.subscribeAlways(FriendMessageEvent.class, event -> {
+            String msg = event.getMessage().contentToString();
+            //event.getSubject().sendMessage(String.valueOf(event.getTime()));
+            //Friend fri = event.getFriend();
+            User friend = event.getSubject();
+            if(msg.charAt(0) == '/'){
+                String[] in = msg.split(" ");
+                if(msg.contains("task")){
+                    sql.Bot_switch(in,event);
+                }
+                
+                
+            }
+        });
+        listenerStranger = GlobalEventChannel.INSTANCE.subscribeAlways(NewFriendRequestEvent.class, event -> {
+            event.accept();
         });
     }
 }
