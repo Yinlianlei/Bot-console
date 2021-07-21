@@ -108,11 +108,15 @@ public final class JavaPluginMain extends JavaPlugin {
             User friend = event.getSubject();
             if(msg.charAt(0) == '/'){
                 String[] in = msg.split(" ");
-                if(msg.contains("task")){
+                if(in[0].contains("task")){
                     sql.Bot_switch(in,event);
+                }else if(in[0].contains("bili")){
+                    sql.Bot_switch(in,event);
+                }else if(in[0].contains("git")){
+                    sql.Bot_switch(in,event);
+                }else if(in[0].compareTo("/stop") == 0){
+                    BT.Stop();
                 }
-                
-                
             }
         });
         listenerStranger = GlobalEventChannel.INSTANCE.subscribeAlways(NewFriendRequestEvent.class, event -> {
