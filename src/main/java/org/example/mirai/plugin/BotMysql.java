@@ -1239,14 +1239,13 @@ public class BotMysql {
                 finishMsg(user,id,biliDailyAnime());
                 return;
             }else if(in.length == 3){
-                day = Integer.valueOf(in[2]);
+                day = Integer.valueOf(in[2]) - 1;
             }else{
                 for(day = 0;day<result.size();day++)
                     if(result.getJSONObject(day).getIntValue("is_today") != 1)
                         continue;
                     else
                         break;
-                day += 1;
             }
 
             tmpJson = result.getJSONObject(day);
